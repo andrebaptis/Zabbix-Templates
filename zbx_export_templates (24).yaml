@@ -1,0 +1,782 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 6e6a1af5df63403ea024057d2cada89c
+      name: REDES
+    - uuid: 66521828b46a48cd9e33661c7fb5ea30
+      name: 'Templates/FTD Customizados'
+  templates:
+    - uuid: 0a13474011f34ae8a28b97fb3562eadf
+      template: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+      name: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+      templates:
+        - name: 'Template Module ICMP Ping'
+      groups:
+        - name: REDES
+        - name: 'Templates/FTD Customizados'
+      items:
+        - uuid: bc8fdd1c018a459b8b819d9f8325c0a2
+          name: Contact
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysContact.0'
+          key: sysContact
+          delay: '60'
+          history: 7d
+          value_type: CHAR
+          trends: '0'
+          inventory_link: CONTACT
+          tags:
+            - tag: Application
+              value: Information(s)
+        - uuid: d53fdd189c29413f9ee79427894d1c6f
+          name: 'Software version (full)'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysDescr.0'
+          key: sysDescr
+          delay: '60'
+          history: 7d
+          value_type: CHAR
+          trends: '0'
+          inventory_link: OS_FULL
+          tags:
+            - tag: Application
+              value: Information(s)
+        - uuid: 7e9baf65a4b3425d9a8843e09b3c0ed4
+          name: 'Device Location'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysLocation.0'
+          key: sysLocation
+          delay: '60'
+          history: 7d
+          value_type: CHAR
+          trends: '0'
+          inventory_link: LOCATION
+          tags:
+            - tag: Application
+              value: Information(s)
+        - uuid: 87924b9990544e72b92b2586b4338340
+          name: 'Device Name'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysName.0'
+          key: sysName
+          delay: '60'
+          history: 7d
+          value_type: CHAR
+          trends: '0'
+          inventory_link: NAME
+          tags:
+            - tag: Application
+              value: Information(s)
+        - uuid: be179090fe524b06b1c94725474e1a19
+          name: Uptime
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-MIB::sysUpTime.0'
+          key: sysUpTime
+          delay: '60'
+          units: uptime
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: Application
+              value: Information(s)
+        - uuid: d6717d138fa8403bb07353048c45328c
+          name: 'UPS battery capacity (%)'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.4.0
+          key: upsAdvBatteryCapacity
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: Application
+              value: Operational
+          triggers:
+            - uuid: dab48128a8b74984897c57f6437e5516
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryCapacity)<25'
+              name: 'Bateria baixa – 25%'
+              priority: AVERAGE
+              dependencies:
+                - name: 'Bateria muito baixa – 10%'
+                  expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryCapacity)<10'
+            - uuid: 65875683e2294745a2480b5833cf636a
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryCapacity)<50'
+              name: 'Bateria em atenção – 50%'
+              priority: WARNING
+              dependencies:
+                - name: 'Bateria baixa – 25%'
+                  expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryCapacity)<25'
+                - name: 'Bateria muito baixa – 10%'
+                  expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryCapacity)<10'
+            - uuid: e04538e860844fe09ecebf1f3ea49584
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryCapacity)<10'
+              name: 'Bateria muito baixa – 10%'
+              priority: HIGH
+        - uuid: f3730f937bad4cc9abfc5b31e73e51f3
+          name: 'UPS battery temperature'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.7.0
+          key: upsAdvBatteryTemperature
+          delay: '60'
+          history: 7d
+          units: °C
+          tags:
+            - tag: Application
+              value: Operational
+          triggers:
+            - uuid: 8a704189f9a641e5b550e44b9f635616
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvBatteryTemperature)>45'
+              name: 'Temperatura alta da bateria (> 45 °C)'
+              priority: HIGH
+        - uuid: 0a6eb4f2f7c34904a081b40d890aea63
+          name: 'UPS input current'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.3.3.1.4.1
+          key: upsAdvInputCurrent
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: A
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: Application
+              value: Operational
+        - uuid: be41115886b84379847c231fd1c91f34
+          name: 'UPS input power'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.3.3.1.5.1
+          key: upsAdvInputPower
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: W
+          tags:
+            - tag: Application
+              value: Operational
+        - uuid: ab7fd1f81ea8484ab22d2328874aede8
+          name: 'UPS input voltage'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.3.3.1.3.1
+          key: upsAdvInputVoltage
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: VAC
+          tags:
+            - tag: Application
+              value: Operational
+        - uuid: 7257c9004da141a3ad8fd5b7a3c0ea72
+          name: 'UPS output current'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.3.1
+          key: upsAdvOutputCurrent
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: A
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: Application
+              value: Operational
+        - uuid: 8978b80449b74a7384c99333f72c0cfd
+          name: 'UPS output frequency'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.2.0
+          key: upsAdvOutputFrequency
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: Hz
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: Application
+              value: Operational
+        - uuid: e9e5d2b8e23840f0aca00e6cbdb57bd2
+          name: 'UPS output load (%)'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.5.1
+          key: upsAdvOutputLoad
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: Application
+              value: Operational
+          triggers:
+            - uuid: c210aed24ad34279b7170a87acc3f199
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvOutputLoad)>85'
+              name: 'Output  Critico no {HOST.NAME}'
+              priority: HIGH
+            - uuid: c9e1a853435a4bb2b10ed7d98d5bb84e
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvOutputLoad)>90'
+              name: 'Output load High on {HOST.NAME}'
+              priority: WARNING
+        - uuid: 77a3ef8988af42e5bbcca9266b8c17d4
+          name: 'UPS output power'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.4.1
+          key: upsAdvOutputPower
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: W
+          tags:
+            - tag: Application
+              value: Operational
+          triggers:
+            - uuid: 1fdbad9a66e443f280ec8ba2d7d460c4
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsAdvOutputPower)>100'
+              name: 'Potência de saída baixa'
+              priority: HIGH
+        - uuid: aa2d66b08f7443debc9e1d3d0d0c5c01
+          name: 'UPS output voltage'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.2.1
+          key: upsAdvOutputVoltage
+          delay: '60'
+          history: 7d
+          value_type: FLOAT
+          units: VAC
+          tags:
+            - tag: Application
+              value: Operational
+        - uuid: 131102d268dc43de9e6630e1b782857f
+          name: 'UPS battery status'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.1.0
+          key: upsBasicBatteryStatus
+          delay: '60'
+          history: 7d
+          valuemap:
+            name: upsBatteryStatus
+          tags:
+            - tag: Application
+              value: Operational
+          triggers:
+            - uuid: b63543c262fa4c28a72117938ba3e278
+              expression: 'last(/CUSTOM - UPS - NOBREAK PARQUE GRAFICO/upsBasicBatteryStatus)=3'
+              name: 'Falha de status da bateria'
+              priority: DISASTER
+        - uuid: 1c0dc17bef394075b132a56d33ba0bf7
+          name: 'UPS time on battery'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.33.1.2.2.0
+          key: upsBasicBatteryTimeOnBattery
+          delay: '60'
+          history: 7d
+          units: s
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: Application
+              value: Operational
+      valuemaps:
+        - uuid: b4ee9184dfd744f4a68afe59bf3651f9
+          name: upsBatteryStatus
+          mappings:
+            - value: '1'
+              newvalue: unknown
+            - value: '2'
+              newvalue: batteryNormal
+            - value: '3'
+              newvalue: batteryLow
+            - value: '4'
+              newvalue: batteryDepleted
+    - uuid: a2a72a8b5c57492c8de388f1d150cce9
+      template: 'Halley UPS Legrand cs121'
+      name: 'CUSTOM - Halley UPS Legrand cs121'
+      groups:
+        - name: 'Templates/FTD Customizados'
+      items:
+        - uuid: 8a4607a88e134c9c86ca95e55e467b57
+          name: 'Alarms present on {HOST.NAME}'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.6.1
+          key: upsAlarmsPresent
+          history: 90d
+          description: 'The present number of active alarm conditions.'
+          tags:
+            - tag: Application
+              value: Health
+          triggers:
+            - uuid: 0b24e2f37b4648ecae4d1028ab9c5aeb
+              expression: 'last(/Halley UPS Legrand cs121/upsAlarmsPresent)<>0'
+              name: 'Alarme do {HOSTNAME} presente'
+              priority: AVERAGE
+              description: 'Por favor, verifique a UPS - geralmente a UPS deve produzir alguns sons agora'
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: 46f5a77e011a4790816d644deee4d625
+          name: 'Battery Status'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.1
+          key: upsBatteryStatus
+          history: 90d
+          valuemap:
+            name: 'APC Battery Status'
+          tags:
+            - tag: Application
+              value: Battery
+          triggers:
+            - uuid: d75bdb23528e4e2b99d07514fbcce5cc
+              expression: 'last(/Halley UPS Legrand cs121/upsBatteryStatus)<>2'
+              name: 'Battery Status on {HOST.NAME} is {ITEM.VALUE}'
+              priority: HIGH
+              description: 'Battery Status on {HOST.NAME} is {ITEM.VALUE}'
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: 8de777c9b94944978f73693e6a6e72a1
+          name: 'Battery temperature'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.7
+          key: upsBatteryTemperature
+          history: 90d
+          units: °C
+          description: 'The ambient temperature at or near the UPS Battery casing.'
+          tags:
+            - tag: Application
+              value: Battery
+          triggers:
+            - uuid: ced5627dfca2478f83fcb70b1af9a543
+              expression: 'last(/Halley UPS Legrand cs121/upsBatteryTemperature)>45'
+              name: 'BATERIA do {HOSTNAME} ESTA COM TEMPERATURA ALTA'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: ff48d5ed44544b8cb81a37e0d20e9539
+          name: 'Battery voltage'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.5
+          key: upsBatteryVoltage
+          history: 90d
+          units: V
+          description: 'The magnitude of the present battery voltage.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: Application
+              value: Battery
+        - uuid: e6c3da56aa2c4d6b920e849cba303925
+          name: 'Bypass Current'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.5.3.1.3.1
+          key: upsBypassCurrent.1
+          history: 90d
+          units: A
+          description: |
+            An automatic bypass of voltage is used by the UPS to switch its load to the mains if it experiences an overload or internal failure. In other words, this mean that UPS has some problems and switch to the main (wall) power. So, if we have bypass - in bypass time our servers are connected directly to the line power - and are exposed to all electricity hazards. 
+            This item show the amperage that we have in bypass time
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: Application
+              value: Health
+        - uuid: fe38ff2736ee4fbda2bf8b843f6296d1
+          name: 'Bypass Power'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.5.3.1.4.1
+          key: upsBypassPower.1
+          history: 90d
+          units: W
+          description: |
+            An automatic bypass is used by the UPS to switch its load to the mains if it experiences an overload or internal failure. In other words, this mean that UPS has some problems and switch to the main (wall) power. So, if we have bypass - in bypass time our servers are connected directly to the line power - and are exposed to all electricity hazards
+            This item show the power that we have in bypass time
+          tags:
+            - tag: Application
+              value: Health
+        - uuid: 6b2b3186406648319837e85169a2a8a9
+          name: 'Bypass Voltage'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.5.3.1.2.1
+          key: upsBypassVoltage.1
+          history: 90d
+          units: V
+          description: 'An automatic bypass of voltage is used by the UPS to switch its load to the mains if it experiences an overload or internal failure. In other words, this mean that UPS has some problems and switch to the main (wall) power. So, if we have bypass - in bypass time our servers are connected directly to the line power - and are exposed to all electricity hazards'
+          tags:
+            - tag: Application
+              value: Health
+        - uuid: eaca7131125f467cb99ad61ddb380265
+          name: 'Estimated charge remaining'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.4
+          key: upsEstimatedChargeRemaining
+          history: 90d
+          units: '%'
+          description: 'An estimate of the battery charge remaining expressed as a percent of full charge.'
+          tags:
+            - tag: Application
+              value: Battery
+          triggers:
+            - uuid: 6077a9f49182489390bcb6db10aaf9a2
+              expression: 'last(/Halley UPS Legrand cs121/upsEstimatedChargeRemaining)<97'
+              name: 'Bateria com carga abaixo de 97%'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+            - uuid: 392c32f3e6354731a1f54b195b6fd7a2
+              expression: 'last(/Halley UPS Legrand cs121/upsEstimatedChargeRemaining)<30'
+              name: 'Bateria descarregada 30% restante'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: c7143a6a03174da1aeca09eabf82404d
+          name: 'Estimated minutes remaining if no power'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.3
+          key: upsEstimatedMinutesRemaining
+          history: 90d
+          units: m
+          description: 'An estimate of the time to battery charge depletion under the present load conditions if the utility power is off and remains off, or if it were to be lost and remain off.'
+          tags:
+            - tag: Application
+              value: Battery
+          triggers:
+            - uuid: bee22a6278744ed0aa1896a3573a4a0d
+              expression: 'last(/Halley UPS Legrand cs121/upsEstimatedMinutesRemaining)<30'
+              name: 'Tempo restante da bateria abaixo de 30 minutos'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: fc9e40362a8b431fbc2a6dcea76a9a3c
+          name: 'Device Version'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.1.4
+          key: upsIdentAgentSoftwareVersion
+          history: 90d
+          value_type: CHAR
+          trends: '0'
+          description: 'The UPS agent software version.'
+          tags:
+            - tag: Application
+              value: General
+        - uuid: d804b394c2784e5da6071f2f47434357
+          name: 'Device Name'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.1.1
+          key: upsIdentManufacturer
+          delay: 1h
+          history: 90d
+          value_type: CHAR
+          trends: '0'
+          description: 'The name of the UPS manufacturer.'
+          tags:
+            - tag: Application
+              value: General
+        - uuid: 1ecd3872d745413aa4e228b911666815
+          name: 'Device Model'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.1.2
+          key: upsIdentModel
+          delay: 1h
+          history: 90d
+          value_type: CHAR
+          trends: '0'
+          description: 'The UPS Model designation.'
+          tags:
+            - tag: Application
+              value: General
+        - uuid: 0cf9cc914c104d5fb53f36713b38c2f6
+          name: 'Input line bads'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.3.1
+          key: upsInputLineBads
+          history: 90d
+          description: 'A count of the number of times the input entered an out-of-tolerance condition as defined by the manufacturer.  This count is incremented by one each time the input transitions from zero out-of-tolerance lines to one or more input lines out-of-tolerance. A big number show problems with the electricity power where your UPS is connected'
+          tags:
+            - tag: Application
+              value: Input
+          triggers:
+            - uuid: 45a974adb9ff40f689791ad085c701a9
+              expression: 'change(/Halley UPS Legrand cs121/upsInputLineBads)<>0'
+              name: 'Linha de alimentação de entrada do UPS ruim'
+              priority: HIGH
+              description: 'frequência ruim, tensão ruim'
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: bbdcca02da7749919518572041f00f35
+          name: 'Input voltage'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.3.3.1.3.1
+          key: upsInputVoltage.1
+          history: 90d
+          units: V
+          description: 'The magnitude of the present input voltage.'
+          tags:
+            - tag: Application
+              value: Input
+          triggers:
+            - uuid: 3b9a76cfe87b421783a46cfc56074869
+              expression: 'last(/Halley UPS Legrand cs121/upsInputVoltage.1,#3)<116 or last(/Halley UPS Legrand cs121/upsInputVoltage.1,#3)>145'
+              name: 'A VOLTAGEM DO {HOSTNAME} ESTA FORA DO NORMAL'
+              priority: HIGH
+              description: 'The input voltage on {HOST.NAME} is low or high. This can create big problems to your UPS, or, unfortunately to your servers'
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: b96f20f6c7f844bda2e36c4b223a7fd6
+          name: 'Output load in percent'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.5.1
+          key: upsOutputPercentLoad.1
+          history: 90d
+          units: '%'
+          description: 'The percentage of the UPS power capacity presently being used on this output line, i.e., the greater of the percent load of true power capacity and the percent load of VA.'
+          tags:
+            - tag: Application
+              value: Output
+          triggers:
+            - uuid: f59da179b5e34bab8ef2809d87cc104a
+              expression: 'last(/Halley UPS Legrand cs121/upsOutputPercentLoad.1,#2)>60'
+              name: '[HOSTNAME} Sobrecarregado'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: cd12da0878fd4f6e9836e31f4564a845
+          name: 'Output Power'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.4.1
+          key: upsOutputPower.1
+          history: 90d
+          units: w
+          description: 'The present output true power.'
+          tags:
+            - tag: Application
+              value: Output
+          triggers:
+            - uuid: 5ea2d604a3854f09b199cdb232300f2b
+              expression: 'last(/Halley UPS Legrand cs121/upsOutputPower.1)<100'
+              name: 'Baixa potência de saída do {HOSTNAME}'
+              priority: AVERAGE
+              description: 'The output power for {HOST.NAME} is under {ITEM.VALUE}. Take actions to prevent this in future'
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+            - uuid: 04de14911f1c40e2abded6b44c6cdf10
+              expression: 'change(/Halley UPS Legrand cs121/upsOutputPower.1)>300'
+              name: 'Carga do {HOSTNAME} alterada'
+              priority: WARNING
+              description: 'detectamos uma grande mudança de carga - o diferencial de saída de potência é superior a 300W'
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+        - uuid: b9be6b72532a465e9c79e3413298e20b
+          name: 'Output Voltage'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.4.4.1.2.1
+          key: upsOutputVoltage.1
+          history: 90d
+          units: V
+          description: 'The present output voltage.'
+          tags:
+            - tag: Application
+              value: Output
+        - uuid: beaf7cf08ca946829a8059756d494e2d
+          name: 'Seconds on battery'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.33.1.2.2
+          key: upsSecondsOnBattery
+          history: 90d
+          units: s
+          description: 'If the unit is on battery power, the elapsed time since the UPS last switched to battery power, or the time since the network management subsystem was last restarted, whichever is less.  Zero shall be returned if the unit is not on battery power.'
+          tags:
+            - tag: Application
+              value: Battery
+          triggers:
+            - uuid: 370c359618cd418a828df7ce08c59626
+              expression: 'last(/Halley UPS Legrand cs121/upsSecondsOnBattery)>30'
+              name: '{HOSTNAME} FUNCIONANDO VIA BATERIA'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Value
+                  value: '{ITEM.VALUE}'
+      macros:
+        - macro: '{$SNMP_COMMUNITY}'
+          value: MonitorZabbix
+      valuemaps:
+        - uuid: ab6323468f5d437b8bd475ec09222fb8
+          name: 'APC Battery Status'
+          mappings:
+            - value: '1'
+              newvalue: unknown
+            - value: '2'
+              newvalue: batteryNormal
+            - value: '3'
+              newvalue: batteryLow
+            - value: '4'
+              newvalue: batteryDepleted
+  triggers:
+    - uuid: 0d8429a8fdbd4fe795f99a88edbbb383
+      expression: 'last(/Halley UPS Legrand cs121/upsBypassCurrent.1)<>0 or last(/Halley UPS Legrand cs121/upsBypassPower.1)<>0'
+      name: 'bypass em {HOST.NAME}'
+      priority: AVERAGE
+      description: 'Temos um estado de desvio. Tome medidas'
+      manual_close: 'YES'
+      tags:
+        - tag: Value
+          value: '{ITEM.VALUE}'
+  graphs:
+    - uuid: 0972f24561804560984571f657bc18fd
+      name: Battery
+      show_work_period: 'NO'
+      show_triggers: 'NO'
+      type: STACKED
+      graph_items:
+        - color: DD0000
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsBatteryTemperature
+        - sortorder: '1'
+          color: '008800'
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsEstimatedChargeRemaining
+        - sortorder: '2'
+          color: 2774A4
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsEstimatedMinutesRemaining
+    - uuid: f54b6476f7fa4886bef5044541384bc6
+      name: 'Battery status'
+      ymin_type_1: FIXED
+      graph_items:
+        - drawtype: BOLD_LINE
+          color: C80000
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsBasicBatteryStatus
+    - uuid: 3891684499c04293955a29036645693c
+      name: 'Output Power'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsOutputPower.1
+    - uuid: dbdb1d004db44d6d96bf22e6d96e1e82
+      name: 'UPS Current'
+      ymin_type_1: FIXED
+      graph_items:
+        - drawtype: BOLD_LINE
+          color: B71C1C
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvInputCurrent
+        - sortorder: '1'
+          drawtype: BOLD_LINE
+          color: 4444FF
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvOutputCurrent
+    - uuid: bceed95aa0c441bf88c5a5b3b9c80031
+      name: 'UPS Frequency'
+      ymin_type_1: FIXED
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: FF4000
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvOutputFrequency
+    - uuid: 294c3ed0eb9e409d816e3ce69a849a1f
+      name: 'UPS Load'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 4444FF
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvOutputLoad
+    - uuid: 3d85290d7bbd4d1796d39ed01ed1fc07
+      name: 'UPS Load'
+      graph_items:
+        - color: F63100
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsOutputPercentLoad.1
+    - uuid: e27d01cf42124213827d7eb40b98be36
+      name: 'UPS Power'
+      ymin_type_1: FIXED
+      graph_items:
+        - drawtype: BOLD_LINE
+          color: B71C1C
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvInputPower
+        - sortorder: '1'
+          drawtype: BOLD_LINE
+          color: 4444FF
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvOutputPower
+    - uuid: 34a022ab6d794c6db546f02a71292bd6
+      name: 'UPS Temperature'
+      ymin_type_1: FIXED
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: FF0000
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvBatteryTemperature
+    - uuid: 551b0924d0494fa883fd088964908788
+      name: 'UPS Voltage'
+      graph_items:
+        - drawtype: BOLD_LINE
+          color: B71C1C
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvInputVoltage
+        - sortorder: '1'
+          drawtype: BOLD_LINE
+          color: 4444FF
+          item:
+            host: 'CUSTOM - UPS - NOBREAK PARQUE GRAFICO'
+            key: upsAdvOutputVoltage
+    - uuid: feaf9614413b4aec807a595faa467ea6
+      name: Voltage
+      graph_items:
+        - color: F63100
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsInputVoltage.1
+        - sortorder: '1'
+          color: 00BB00
+          item:
+            host: 'Halley UPS Legrand cs121'
+            key: upsOutputVoltage.1
